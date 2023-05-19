@@ -1,0 +1,4 @@
+Chart.lock
+*/**/charts
+!./charts
+k8s-helm-dep-updater

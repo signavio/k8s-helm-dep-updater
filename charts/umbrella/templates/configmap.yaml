@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "umbrella.fullname" . }}
+  labels:
+    {{- include "umbrella.labels" . | nindent 4 }}
+spec:
+  name: {{ .Values.name }}

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "subchart-level-3.fullname" . }}
+  labels:
+    {{- include "subchart-level-3.labels" . | nindent 4 }}
+spec:
+  name: {{ .Values.name }}
