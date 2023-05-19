@@ -31,7 +31,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		defer registryHelper.RegistryLogout()
+		defer registryHelper.RegistryLogout() // nolint: errcheck
 	}
 	err := updateDependencies(*chartPath)
 	if err != nil {
