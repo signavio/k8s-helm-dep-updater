@@ -52,7 +52,7 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 	if err != nil {
 		return err
 	}
-	for secretname, _ := range r.Registries {
+	for secretname := range r.Registries {
 		secret, err := r.kubernetesClient.CoreV1().Secrets(r.Namespace).Get(context.TODO(), secretname, metav1.GetOptions{})
 		if err != nil {
 			return err
@@ -68,14 +68,20 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 
 func (r *RegistryHelper) RegistryLogin() error {
 	for _, registry := range r.Registries {
-		registry.Login()
+		err := registry.Login()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func (r *RegistryHelper) RegistryLogout() error {
 	for _, registry := range r.Registries {
-		registry.Logout()
+		err := registry.Logout()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
