@@ -6,11 +6,17 @@ import (
 	"helm.sh/helm/v3/pkg/kube"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	typedv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
+
+type KubeClientInterface interface {
+	CoreV1() typedv1.CoreV1Interface
+}
 
 type RegistryHelper struct {
 	Registries map[string]*RegistryInfo
 	Namespace  string
+	kubernetesClient KubeClientInterface
 }
 
 type RegistryInfo struct {
@@ -27,26 +33,27 @@ func (r *RegistryInfo) Logout() error {
 	return runHelmCommand("registry", "logout", r.Hostname)
 }
 
-func NewKubeClient() (*kubernetes.Clientset, error) {
+func (r *RegistryHelper) InitKubeClient() error {
 	kubeConfig := kube.GetConfig("", "", "")
 	restConfig, err := kubeConfig.ToRESTConfig()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return clientset, nil
+	r.kubernetesClient = clientset
+	return nil
 }
 
 func (r *RegistryHelper) UpdateRegistryInfo() error {
-	clientset, err := NewKubeClient()
+	err := r.InitKubeClient()
 	if err != nil {
 		return err
 	}
 	for secretname, _ := range r.Registries {
-		secret, err := clientset.CoreV1().Secrets(r.Namespace).Get(context.TODO(), secretname, metav1.GetOptions{})
+		secret, err := r.kubernetesClient.CoreV1().Secrets(r.Namespace).Get(context.TODO(), secretname, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
