@@ -5,9 +5,8 @@
   ],
   "packageRules": [
     {
-      "matchManagers": [
-        "helmv3"
-      ]
+      "matchManagers": ["helmv3"],
+      "enabled": false
     }
   ]
 }
