@@ -3,10 +3,16 @@
   "extends": [
     "config:base"
   ],
+  "platformAutomerge": true,
   "packageRules": [
     {
       "matchManagers": ["helmv3"],
       "enabled": false
+    },
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
     }
   ]
 }
