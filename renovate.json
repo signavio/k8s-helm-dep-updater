@@ -1,7 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:base",
+    "github>karlderkaefer/renovate-config:golang",
+    "schedule:weekly"
   ],
   "platformAutomerge": true,
   "packageRules": [
