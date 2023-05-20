@@ -5,7 +5,7 @@ go 1.20
 require (
 	helm.sh/helm/v3 v3.12.0
 	k8s.io/apimachinery v0.27.2
-	k8s.io/client-go v0.27.2
+	k8s.io/client-go v11.0.0+incompatible
 )
 
 require (
