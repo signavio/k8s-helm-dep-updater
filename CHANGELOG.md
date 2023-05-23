@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.0.0...v1.1.0) (2023-05-23)
+
+
+### Features
+
+* add helm plugin ([c2fa847](https://github.com/signavio/k8s-helm-dep-updater/commit/c2fa8475700b95b79b2f719178f11c4593990e9e))
+
 # 1.0.0 (2023-05-23)
 
 
