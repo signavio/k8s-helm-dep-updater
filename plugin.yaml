@@ -1,0 +1,10 @@
+name: "deps"
+version: "0.1.0"
+usage: "Recursively resolve helm dependencies"
+description: "This plugin uses k8s-helm-dep-updater to recursively resolve helm dependencies."
+ignoreFlags: false
+command: "$HELM_PLUGIN_DIR/scripts/run.sh"
+downloaders:
+  - command: "scripts/run.sh"
+    protocols:
+      - "deps"
