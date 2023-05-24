@@ -4,5 +4,5 @@ metadata:
   name: {{ include "subchart-level-2.fullname" . }}
   labels:
     {{- include "subchart-level-2.labels" . | nindent 4 }}
-spec:
+data:
   name: {{ .Values.name }}

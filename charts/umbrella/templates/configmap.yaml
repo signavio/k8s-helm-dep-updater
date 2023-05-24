@@ -4,5 +4,5 @@ metadata:
   name: {{ include "umbrella.fullname" . }}
   labels:
     {{- include "umbrella.labels" . | nindent 4 }}
-spec:
+data:
   name: {{ .Values.name }}
