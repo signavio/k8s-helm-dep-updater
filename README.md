@@ -54,6 +54,10 @@ repoServer:
   env:
   - name: HELM_PLUGINS
     value: /custom-tools/helm-plugins
+  # optionally if you want to login to ECR before fetching the charts
+  # it expects a comma separated list of secret names
+  - name: HELM_DEPS_SECRET_NAMES
+    value: helm-ecr-staging,helm-ecr-production
   volumeMounts:
     - mountPath: /custom-tools
       name: custom-tools

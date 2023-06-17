@@ -3,16 +3,17 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"strings"
 )
 
 func main() {
 	chartPath := flag.String("chartPath", ".", "path to the chart")
 	secretNamespace := flag.String("secretNamespace", "argocd", "namespace where the secret is located")
-	secretNames := flag.String("registries", "", "comma separated list of registries to update")
+	secretNames := flag.String("registries", os.Getenv("HELM_DEPS_SECRET_NAMES"), "comma separated list of registries to update")
 	ecrLoginEnabled := flag.Bool("ecr", true, "enable ecr login")
 	flag.Parse()
-
+	
 	if ecrLoginEnabled != nil && *ecrLoginEnabled && *secretNames != "" {
 		registryMap := make(map[string]*RegistryInfo)
 		for _, registry := range strings.Split(*secretNames, ",") {
