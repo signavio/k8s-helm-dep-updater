@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.1.0...v1.1.1) (2023-06-17)
+
+
+### Bug Fixes
+
+* configurable secret names for registries ([dcf080a](https://github.com/signavio/k8s-helm-dep-updater/commit/dcf080acd0f7ab41789591af3003c62cedd70793))
+
 # [1.1.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.0.0...v1.1.0) (2023-05-23)
 
 
