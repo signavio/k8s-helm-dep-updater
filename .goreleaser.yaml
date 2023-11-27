@@ -19,14 +19,8 @@ archives:
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
-    format_overrides:
-      - goos: windows
-        format: zip
+      {{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}
+
   - id: helm-plugin
     format: tar.gz
     name_template: "{{ .ProjectName }}"
@@ -35,7 +29,6 @@ archives:
     - scripts/*
     - plugin.yaml
 
-    
 checksum:
   name_template: "checksums.txt"
 snapshot:
