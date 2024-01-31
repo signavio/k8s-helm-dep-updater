@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.1.1...v1.2.0) (2024-01-31)
+
+
+### Features
+
+* **SIGCORE-756:** modifying uname in name template ([65e2625](https://github.com/signavio/k8s-helm-dep-updater/commit/65e2625eeffd5e76f9d28aa4723fd973b5f74789))
+* **SIGCORE-756:** updating readme ([09bdc28](https://github.com/signavio/k8s-helm-dep-updater/commit/09bdc28f65c9b3b806b04733f257b770ca478da6))
+
 ## [1.1.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.1.0...v1.1.1) (2023-06-17)
 
 
