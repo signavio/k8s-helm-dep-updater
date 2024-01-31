@@ -19,7 +19,7 @@ archives:
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
-      {{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}
+      {{- .Arch }}{{ with .Arm }}v{{ . }}{{ end }}
 
   - id: helm-plugin
     format: tar.gz
