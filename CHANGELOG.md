@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.2.0...v1.2.1) (2024-01-31)
+
+
+### Bug Fixes
+
+* update  goreleaser.yaml ([3688306](https://github.com/signavio/k8s-helm-dep-updater/commit/36883061548d643077cad99537fa8c09d33cd75a))
+
 # [1.2.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.1.1...v1.2.0) (2024-01-31)
 
 
