@@ -7,7 +7,7 @@ There is an [open issue](https://github.com/helm/helm/issues/2247) and [PR](http
 ## Install
 
 ```bash
-wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/download/v1.2.1/k8s-helm-dep-updater_$(uname -s)_$(uname -m).tar.gz" | tar -C /tmp -xzf- k8s-helm-dep-updater
+wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/latest/download/k8s-helm-dep-updater_$(uname -s)_$(uname -m).tar.gz" | tar -C /tmp -xzf- k8s-helm-dep-updater
 sudo mv /tmp/k8s-helm-dep-updater /usr/local/bin/k8s-helm-dep-updater
 ```
 
@@ -46,8 +46,8 @@ repoServer:
       args:
         - |
           mkdir -p /custom-tools/helm-plugins/helm-dep-updater
-          wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/download/v1.2.1/k8s-helm-dep-updater.tar.gz" | tar -C /custom-tools/helm-plugins/helm-dep-updater -xzf-;
-          wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/download/v1.2.1/k8s-helm-dep-updater_$(uname -s)_$(uname -m).tar.gz" | tar -C /custom-tools/ -xzf- k8s-helm-dep-updater
+          wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/latest/download/k8s-helm-dep-updater.tar.gz" | tar -C /custom-tools/helm-plugins/helm-dep-updater -xzf-;
+          wget -qO- "https://github.com/signavio/k8s-helm-dep-updater/releases/latest/download/k8s-helm-dep-updater_$(uname -s)_$(uname -m).tar.gz" | tar -C /custom-tools/ -xzf- k8s-helm-dep-updater
     volumeMounts:
       - mountPath: /custom-tools
         name: custom-tools
