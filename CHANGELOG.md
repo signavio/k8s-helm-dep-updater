@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.1...v1.3.2) (2024-02-27)
+
+
+### Bug Fixes
+
+* trigger release of new version ([912b9f6](https://github.com/signavio/k8s-helm-dep-updater/commit/912b9f6a650f9b180b84ad92e6263a5c965a1102))
+
 ## [1.3.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.0...v1.3.1) (2024-02-27)
 
 
