@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.0...v1.3.1) (2024-02-27)
+
+
+### Bug Fixes
+
+* **deps:** update module helm.sh/helm/v3 to v3.14.1 [security] ([b721ae9](https://github.com/signavio/k8s-helm-dep-updater/commit/b721ae938d20e9937b0d4495f5825f97fa2bfe0f))
+* **deps:** update module helm.sh/helm/v3 to v3.14.2 [security] ([5725ac0](https://github.com/signavio/k8s-helm-dep-updater/commit/5725ac01aa8e55c4f65c3be948986ddac40960fa))
+* updating plugin-version and script only requires sh now ([5a01359](https://github.com/signavio/k8s-helm-dep-updater/commit/5a013592727063c34fb902c2f85f35ab4eb9a4d3))
+
 # [1.3.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.2.1...v1.3.0) (2024-02-02)
 
 
