@@ -19,7 +19,7 @@ helm plugin install https://github.com/signavio/k8s-helm-dep-updater.git
 
 ## Argocd Integration
 
-To activate the helm dep updater we use downloader plugin to activate it. `dummy` can be anything. Most importantly with the `deps://` prefix we activate the downloader plugin.
+To activate the helm dep updater we use downloader plugin to activate it. `dummy` can be anything. Most importantly with the `deps://` prefix you can activate the downloader plugin.
 
 ```yaml
 project: default
