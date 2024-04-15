@@ -3,7 +3,7 @@ module github.com/signavio/k8s-helm-dep-updater
 go 1.21
 
 require (
-	helm.sh/helm/v3 v3.14.3
+	helm.sh/helm/v3 v3.14.4
 	k8s.io/apimachinery v0.29.3
 	k8s.io/client-go v0.29.3
 )
