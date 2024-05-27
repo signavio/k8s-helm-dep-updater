@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.3
 
 require (
-	helm.sh/helm/v3 v3.15.0
+	helm.sh/helm/v3 v3.15.1
 	k8s.io/apimachinery v0.30.1
 	k8s.io/client-go v0.30.1
 )
