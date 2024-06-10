@@ -2,7 +2,7 @@ module github.com/signavio/k8s-helm-dep-updater
 
 go 1.22.0
 
-toolchain go1.22.3
+toolchain go1.22.4
 
 require (
 	helm.sh/helm/v3 v3.15.1
