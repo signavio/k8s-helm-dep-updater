@@ -1,3 +1,10 @@
+## [1.3.9](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.8...v1.3.9) (2024-06-17)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([ea55d90](https://github.com/signavio/k8s-helm-dep-updater/commit/ea55d90ac4bb4261f9427e9490f7a3ad0cddc310))
+
 ## [1.3.8](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.7...v1.3.8) (2024-05-27)
 
 
