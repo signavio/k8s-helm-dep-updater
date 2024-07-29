@@ -23,10 +23,15 @@ type RegistryInfo struct {
 	Hostname string
 	Username string
 	Password string
+	SecretName string
 }
 
 func (r *RegistryInfo) Login() error {
 	return runHelmCommand("registry", "login", "-u", r.Username, "-p", r.Password, r.Hostname)
+}
+
+func (r *RegistryInfo) Add() error {
+	return runHelmCommand("repo", "add", r.SecretName, r.Hostname, "--username", r.Username, "--password", r.Password)
 }
 
 func (r *RegistryInfo) Logout() error {
@@ -61,6 +66,7 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 			Hostname: string(secret.Data["url"]),
 			Username: string(secret.Data["username"]),
 			Password: string(secret.Data["password"]),
+			SecretName: secretname,
 		}
 	}
 	return nil
@@ -69,6 +75,16 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 func (r *RegistryHelper) RegistryLogin() error {
 	for _, registry := range r.Registries {
 		err := registry.Login()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *RegistryHelper) RegistryAdd() error {
+	for _, registry := range r.Registries {
+		err := registry.Add()
 		if err != nil {
 			return err
 		}
