@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.11...v1.4.0) (2024-07-29)
+
+
+### Features
+
+* add helm repo add functionality ([5635455](https://github.com/signavio/k8s-helm-dep-updater/commit/5635455eb940bc97b6b5df3b1f3353c71bddb553))
+
 ## [1.3.11](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.10...v1.3.11) (2024-07-22)
 
 
