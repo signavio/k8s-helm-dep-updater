@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.4...v1.4.5) (2024-11-18)
+
+
+### Bug Fixes
+
+* **deps:** update module helm.sh/helm/v3 to v3.16.3 ([c742b4c](https://github.com/signavio/k8s-helm-dep-updater/commit/c742b4c0590890b071c810e1925a9a025ebcbc36))
+
 ## [1.4.4](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.3...v1.4.4) (2024-10-28)
 
 
