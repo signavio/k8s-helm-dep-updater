@@ -7,29 +7,75 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"helm.sh/helm/v3/pkg/chart/loader"
 )
 
-func updateDependencies(chartPath string) error {
+type ChartLevel struct {
+	Path  string
+	Level int
+}
+
+func updateDependencies(chartPath string, level int) error {
 	chart, err := loader.Load(chartPath)
 	if err != nil {
 		return err
 	}
+
+	regex := regexp.MustCompile("file://(.*)")
+	var nestedCharts []ChartLevel
+
+	// First, collect all nested dependencies with their hierarchy level
 	for _, dep := range chart.Metadata.Dependencies {
-		fmt.Printf("detected dependency: %s repository: %s version: %s\n", dep.Name, dep.Repository, dep.Version)
-		regex := regexp.MustCompile("file://(.*)")
 		if regex.MatchString(dep.Repository) {
 			relativePath := strings.TrimPrefix(dep.Repository, "file://")
 			depPath := filepath.Join(chartPath, relativePath)
-			fmt.Println("updating dependency:", dep.Name)
-			if err := updateDependencies(depPath); err != nil {
+			nestedCharts = append(nestedCharts, ChartLevel{Path: depPath, Level: level + 1})
+		}
+	}
+
+	// Update dependencies for nested charts first (depth-first)
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(nestedCharts))
+
+	for _, nestedChart := range nestedCharts {
+		wg.Add(1)
+		go func(nestedChart ChartLevel) {
+			defer wg.Done()
+			fmt.Printf("Updating dependency at level %d: %s\n", nestedChart.Level, nestedChart.Path)
+			if err := updateDependencies(nestedChart.Path, nestedChart.Level); err != nil {
+				errChan <- err
+			}
+		}(nestedChart)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	// Check for any errors that occurred during the dependency updates
+	for err := range errChan {
+		if err != nil {
+			return err
+		}
+	}
+
+	fmt.Printf("Updating chart dependencies for %s at level %d\n", chartPath, level)
+	return helmDepUpdate(chartPath)
+}
+
+// Remove lock file to allow to rebuild dependencies on helm build command
+func cleanupLockFiles(chartPath string) error {
+	lockFiles := []string{"Chart.lock", "requirements.lock"}
+	for _, lockFile := range lockFiles {
+		path := filepath.Join(chartPath, lockFile)
+		if _, err := os.Stat(path); err == nil {
+			if err := os.Remove(path); err != nil {
 				return err
 			}
 		}
 	}
-
-	return helmDepUpdate(chartPath)
+	return nil
 }
 
 func runHelmCommand(args ...string) error {
@@ -40,5 +86,15 @@ func runHelmCommand(args ...string) error {
 }
 
 func helmDepUpdate(chartPath string) error {
-	return runHelmCommand("dependency", "update", chartPath)
+	err := cleanupLockFiles(chartPath)
+	if err != nil {
+		return err
+	}
+	skipRefresh := os.Getenv("HELM_DEPS_SKIP_REFRESH") // prevent update of repositories
+	args := []string{"dependency", "update", chartPath}
+	if skipRefresh == "true" {
+		args = append(args, "--skip-refresh")
+	}
+	return runHelmCommand(args...)
 }
+

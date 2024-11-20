@@ -53,7 +53,7 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	err := updateDependencies(*chartPath)
+	err := updateDependencies(*chartPath, 1)
 	if err != nil {
 		log.Fatal(err)
 	}
