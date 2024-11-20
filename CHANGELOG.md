@@ -1,3 +1,45 @@
+## [1.4.5](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.4...v1.4.5) (2024-11-18)
+
+
+### Bug Fixes
+
+* **deps:** update module helm.sh/helm/v3 to v3.16.3 ([c742b4c](https://github.com/signavio/k8s-helm-dep-updater/commit/c742b4c0590890b071c810e1925a9a025ebcbc36))
+
+## [1.4.4](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.3...v1.4.4) (2024-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies to v0.31.2 ([a8caa08](https://github.com/signavio/k8s-helm-dep-updater/commit/a8caa084a8597c015a3ab5a2c98f71fe0e228266))
+
+## [1.4.3](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.2...v1.4.3) (2024-10-14)
+
+
+### Bug Fixes
+
+* **deps:** update module helm.sh/helm/v3 to v3.16.2 ([e2cf290](https://github.com/signavio/k8s-helm-dep-updater/commit/e2cf290037152605f251aed42fa0ea9db9436c11))
+
+## [1.4.2](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.1...v1.4.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([7e77b9d](https://github.com/signavio/k8s-helm-dep-updater/commit/7e77b9da8ed0fe3e0642442b7e64f0a050b5937e))
+
+## [1.4.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.0...v1.4.1) (2024-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([0b79402](https://github.com/signavio/k8s-helm-dep-updater/commit/0b79402ecc5728ce06036af234c3af6995d49b5f))
+
+# [1.4.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.11...v1.4.0) (2024-07-29)
+
+
+### Features
+
+* add helm repo add functionality ([5635455](https://github.com/signavio/k8s-helm-dep-updater/commit/5635455eb940bc97b6b5df3b1f3353c71bddb553))
+
 ## [1.3.11](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.3.10...v1.3.11) (2024-07-22)
 
 
