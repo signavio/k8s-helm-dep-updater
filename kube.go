@@ -120,6 +120,10 @@ func (r *RegistryHelper) InitKubeClient() error {
 }
 
 func (r *RegistryHelper) UpdateRegistryInfo() error {
+	if len(r.Registries) == 0 {
+		log.Printf("No secrets provided, skipping registry update from kubeclient")
+		return nil
+	}
 	err := r.InitKubeClient()
 	if err != nil {
 		return err
