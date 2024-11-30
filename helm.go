@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,39 +14,113 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 )
 
-type ChartLevel struct {
-	Path  string
-	Level int
+type ChartInfo struct {
+	Path         string
+	Level        int
+	NestedCharts []ChartInfo
+	Registries   map[string]*RegistryInfo
+}
+type HelmUpdater struct {
+	registryHelper *RegistryHelper
 }
 
-func updateDependencies(chartPath string, level int) error {
-	chart, err := loader.Load(chartPath)
+func (c *ChartInfo) AddDependencyUrl(depdencyUrl string) error {
+	if depdencyUrl == "" {
+		return nil
+	}
+	hostnameKey := sanitizeHostname(depdencyUrl)
+	parsedURL, err := url.Parse(depdencyUrl)
+	if err != nil {
+		return fmt.Errorf("failed to parse URL: %s in Chart %s : %w", depdencyUrl, c.Path, err)
+	}
+	if parsedURL.Scheme == "file" {
+		return nil
+	}
+	if !(parsedURL.Scheme == "oci" || parsedURL.Scheme == "https") {
+		log.Printf("Unsupported scheme %s in URL: %s in Chart %s. Skipping adding registry", parsedURL.Scheme, depdencyUrl, c.Path)
+		return nil
+	}
+	registry := &RegistryInfo{
+		Hostname:   parsedURL.String(),
+		SecretName: hostnameKey,
+		EnableOCI:  false,
+	}
+	if parsedURL.Scheme == "oci" {
+		registry.EnableOCI = true
+	}
+	c.Registries[hostnameKey] = registry
+	return nil
+}
+
+func (updater *HelmUpdater) UpdateChart(chartPath string) error {
+	chartInfo, err := loadChartInfo(chartPath, 1)
 	if err != nil {
 		return err
 	}
+	skipRefresh := os.Getenv("HELM_DEPS_SKIP_REFRESH")
+	if skipRefresh == "true" {
+		for _, registry := range chartInfo.Registries {
+			err := updater.registryHelper.LoginIfExists(registry)
+			if err != nil {
+				return err
+			}
+		}
+		// update helm repo after adding all registries
+		err := runHelmCommand("repo", "update")
+		if err != nil {
+			return err
+		}
+	}
+	return updateDependencies(chartInfo)
+}
 
+// sanitizeHostname replaces all non-alphanumeric characters with hyphens
+func sanitizeHostname(input string) string {
+	re := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	return re.ReplaceAllString(input, "-")
+}
+
+func loadChartInfo(chartPath string, level int) (ChartInfo, error) {
+	chart, err := loader.Load(chartPath)
+	if err != nil {
+		return ChartInfo{}, err
+	}
+
+	chartInfo := ChartInfo{Path: chartPath, Level: level, Registries: make(map[string]*RegistryInfo)}
 	regex := regexp.MustCompile("file://(.*)")
-	var nestedCharts []ChartLevel
 
-	// First, collect all nested dependencies with their hierarchy level
+	// Collect URLs of dependencies
 	for _, dep := range chart.Metadata.Dependencies {
+		chartInfo.AddDependencyUrl(dep.Repository)
 		if regex.MatchString(dep.Repository) {
 			relativePath := strings.TrimPrefix(dep.Repository, "file://")
 			depPath := filepath.Join(chartPath, relativePath)
-			nestedCharts = append(nestedCharts, ChartLevel{Path: depPath, Level: level + 1})
+			nestedChart, err := loadChartInfo(depPath, level+1)
+			if err != nil {
+				return ChartInfo{}, err
+			}
+			chartInfo.NestedCharts = append(chartInfo.NestedCharts, nestedChart)
+			// Merge URLs from nested charts
+			for _, registry := range nestedChart.Registries {
+				chartInfo.AddDependencyUrl(registry.Hostname)
+			}
 		}
 	}
 
-	// Update dependencies for nested charts first (depth-first)
-	var wg sync.WaitGroup
-	errChan := make(chan error, len(nestedCharts))
+	return chartInfo, nil
+}
 
-	for _, nestedChart := range nestedCharts {
+func updateDependencies(chartInfo ChartInfo) error {
+	// Update dependencies for nested charts
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(chartInfo.NestedCharts))
+
+	for _, nestedChart := range chartInfo.NestedCharts {
 		wg.Add(1)
-		go func(nestedChart ChartLevel) {
+		go func(nestedChart ChartInfo) {
 			defer wg.Done()
-			fmt.Printf("Updating dependency at level %d: %s\n", nestedChart.Level, nestedChart.Path)
-			if err := updateDependencies(nestedChart.Path, nestedChart.Level); err != nil {
+			fmt.Printf("Updating chart dependencies for %s at level %d\n", nestedChart.Path, nestedChart.Level)
+			if err := updateDependencies(nestedChart); err != nil {
 				errChan <- err
 			}
 		}(nestedChart)
@@ -59,9 +135,7 @@ func updateDependencies(chartPath string, level int) error {
 			return err
 		}
 	}
-
-	fmt.Printf("Updating chart dependencies for %s at level %d\n", chartPath, level)
-	return helmDepUpdate(chartPath)
+	return helmDepUpdate(chartInfo.Path)
 }
 
 // Remove lock file to allow to rebuild dependencies on helm build command
@@ -97,4 +171,3 @@ func helmDepUpdate(chartPath string) error {
 	}
 	return runHelmCommand(args...)
 }
-
