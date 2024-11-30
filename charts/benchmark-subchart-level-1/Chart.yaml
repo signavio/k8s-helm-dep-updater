@@ -31,6 +31,12 @@ dependencies:
   - name: benchmark-subchart-level-2a
     repository: file://../benchmark-subchart-level-2a
     version: 0.1.0
-  # - name: benchmark-subchart-level-2b
-  #   repository: file://../benchmark-subchart-level-2b
-  #   version: 0.1.0
+  - name: benchmark-subchart-level-2b
+    repository: file://../benchmark-subchart-level-2b
+    version: 0.1.0
+  - name: benchmark-subchart-level-2c
+    repository: file://../benchmark-subchart-level-2c
+    version: 0.1.0
+  - name: benchmark-subchart-level-2d
+    repository: file://../benchmark-subchart-level-2d
+    version: 0.1.0
