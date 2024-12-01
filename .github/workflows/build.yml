@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: azure/setup-helm@v4.2.0
         id: install
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
