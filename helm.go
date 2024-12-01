@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/url"
@@ -22,6 +23,12 @@ type ChartInfo struct {
 }
 type HelmUpdater struct {
 	registryHelper *RegistryHelper
+	config *HelmUpdateConfig
+}
+
+type HelmUpdateConfig struct {
+	SkipRepoOverwrite bool
+	SkipDepdencyRefresh bool // ENV: HELM_DEPS_SKIP_REFRESH
 }
 
 func (c *ChartInfo) AddDependencyUrl(depdencyUrl string) error {
@@ -57,8 +64,8 @@ func (updater *HelmUpdater) UpdateChart(chartPath string) error {
 	if err != nil {
 		return err
 	}
-	skipRefresh := os.Getenv("HELM_DEPS_SKIP_REFRESH")
-	if skipRefresh == "true" {
+	// we login to all collected registries before updating dependencies
+	if updater.config.SkipDepdencyRefresh {
 		for _, registry := range chartInfo.Registries {
 			err := updater.registryHelper.LoginIfExists(registry)
 			if err != nil {
@@ -71,7 +78,7 @@ func (updater *HelmUpdater) UpdateChart(chartPath string) error {
 			return err
 		}
 	}
-	return updateDependencies(chartInfo)
+	return updater.updateDependencies(chartInfo)
 }
 
 // sanitizeHostname replaces all non-alphanumeric characters with hyphens
@@ -110,7 +117,7 @@ func loadChartInfo(chartPath string, level int) (ChartInfo, error) {
 	return chartInfo, nil
 }
 
-func updateDependencies(chartInfo ChartInfo) error {
+func (updater *HelmUpdater) updateDependencies(chartInfo ChartInfo) error {
 	// Update dependencies for nested charts
 	var wg sync.WaitGroup
 	errChan := make(chan error, len(chartInfo.NestedCharts))
@@ -120,7 +127,7 @@ func updateDependencies(chartInfo ChartInfo) error {
 		go func(nestedChart ChartInfo) {
 			defer wg.Done()
 			fmt.Printf("Updating chart dependencies for %s at level %d\n", nestedChart.Path, nestedChart.Level)
-			if err := updateDependencies(nestedChart); err != nil {
+			if err := updater.updateDependencies(nestedChart); err != nil {
 				errChan <- err
 			}
 		}(nestedChart)
@@ -135,7 +142,7 @@ func updateDependencies(chartInfo ChartInfo) error {
 			return err
 		}
 	}
-	return helmDepUpdate(chartInfo.Path)
+	return updater.helmDepUpdate(chartInfo.Path)
 }
 
 // Remove lock file to allow to rebuild dependencies on helm build command
@@ -159,14 +166,35 @@ func runHelmCommand(args ...string) error {
 	return cmd.Run()
 }
 
-func helmDepUpdate(chartPath string) error {
+// helmRepoExists checks if a helm repository already exists with helm repo ls command
+func helmRepoExists(registry *RegistryInfo, config *HelmUpdateConfig) (bool, error) {
+	if !config.SkipRepoOverwrite {
+		return false, nil
+	}
+	cmd := exec.Command("helm", "repo", "ls")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return false, fmt.Errorf("failed to run helm repo ls: %w", err)
+	}
+	output := out.String()
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, registry.Hostname) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (updater *HelmUpdater) helmDepUpdate(chartPath string) error {
 	err := cleanupLockFiles(chartPath)
 	if err != nil {
 		return err
 	}
-	skipRefresh := os.Getenv("HELM_DEPS_SKIP_REFRESH") // prevent update of repositories
 	args := []string{"dependency", "update", chartPath}
-	if skipRefresh == "true" {
+	if updater.config.SkipDepdencyRefresh {
 		args = append(args, "--skip-refresh")
 	}
 	return runHelmCommand(args...)

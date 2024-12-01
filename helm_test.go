@@ -10,39 +10,59 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdateDependenciesWithRefresh(t *testing.T) {
-	chartPath := "charts/benchmark-subchart-level-1"
-	updater := HelmUpdater{
-		registryHelper: &RegistryHelper{},
-	}
-	startTime := time.Now()
-	err := updater.UpdateChart(chartPath)
-	duration := time.Since(startTime)
-	assert.NoError(t, err)
-	t.Logf("UpdateChart took with refresh %s", duration)
-
-	numberObject, err := countObjects(chartPath)
-	assert.NoError(t, err)
-	assert.Equal(t, 40, numberObject, "Number of objects in umbrella chart")
+type TestCase struct {
+	name                string
+	chartPath           string
+	helmDepsSkipRefresh bool
+	expectedNumObjects  int
 }
 
-func TestUpdateDependenciesWithoutRefresh(t *testing.T) {
-	t.Setenv("HELM_DEPS_SKIP_REFRESH", "true")
-	chartPath := "charts/benchmark-subchart-level-1"
-	updater := HelmUpdater{
-		registryHelper: &RegistryHelper{},
+func TestUpdateDependencies(t *testing.T) {
+	testCases := []TestCase{
+		{
+			name:                "With Refresh",
+			chartPath:           "charts/benchmark-subchart-level-1",
+			helmDepsSkipRefresh: false,
+			expectedNumObjects:  42,
+		},
+		{
+			name:                "Without Refresh",
+			chartPath:           "charts/benchmark-subchart-level-1",
+			helmDepsSkipRefresh: true,
+			expectedNumObjects:  42,
+		},
 	}
-	updater.registryHelper.InitKubeClient()
-	updater.registryHelper.UpdateRegistryInfo()
-	startTime := time.Now()
-	err := updater.UpdateChart(chartPath)
-	duration := time.Since(startTime)
-	assert.NoError(t, err)
-	t.Logf("UpdateChart took with refresh %s", duration)
-	
-	numberObject, err := countObjects(chartPath)
-	assert.NoError(t, err)
-	assert.Equal(t, 40, numberObject, "Number of objects in umbrella chart")
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := &HelmUpdateConfig{}
+			if tc.helmDepsSkipRefresh {
+				config.SkipDepdencyRefresh = true
+				config.SkipRepoOverwrite = true
+			}
+
+			updater := HelmUpdater{
+				registryHelper: &RegistryHelper{
+					config: config,
+				},
+				config: config,
+			}
+
+			if tc.helmDepsSkipRefresh {
+				updater.registryHelper.UpdateRegistryInfo()
+			}
+
+			startTime := time.Now()
+			err := updater.UpdateChart(tc.chartPath)
+			duration := time.Since(startTime)
+			assert.NoError(t, err)
+			t.Logf("UpdateChart took %s", duration)
+
+			numberObject, err := countObjects(tc.chartPath)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedNumObjects, numberObject, "Number of objects in umbrella chart")
+		})
+	}
 }
 
 // render helm template of chart and count yaml objects

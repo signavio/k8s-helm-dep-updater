@@ -20,6 +20,7 @@ type RegistryHelper struct {
 	Registries       map[string]*RegistryInfo
 	Namespace        string
 	kubernetesClient KubeClientInterface
+	config *HelmUpdateConfig
 }
 
 type RegistryInfo struct {
@@ -65,14 +66,17 @@ func (d *DefaultStrategy) Logout() error {
 
 // NewRegistryHelper creates a new RegistryHelper
 // secretNames is a comma separated list of registry secrets
-func NewRegistryHelper(secretNames string, namespace string) *RegistryHelper {
+func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateConfig) *RegistryHelper {
 	registryMap := make(map[string]*RegistryInfo)
 	for _, registry := range strings.Split(secretNames, ",") {
-		registryMap[registry] = &RegistryInfo{}
+		if registry != "" {
+			registryMap[registry] = &RegistryInfo{}
+		}
 	}
 	return &RegistryHelper{
 		Registries: registryMap,
 		Namespace:  namespace,
+		config: config,
 	}
 }
 
@@ -90,6 +94,14 @@ func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
 func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
 	if registry == nil {
 		return errors.New("registry can not be empty")
+	}
+	exists, err := helmRepoExists(registry, r.config)
+	if err != nil {
+		return err
+	}
+	if exists {
+		log.Printf("Registry %s found in helm repos, skipping login", registry.SecretName)
+		return nil
 	}
 	foundRegistry := r.GetRegistryByHostname(registry.Hostname)
 	if foundRegistry != nil {
@@ -156,6 +168,7 @@ func (r *RegistryHelper) LoginAll() error {
 		action := GetRegistryAction(registry)
 		err := action.Login()
 		if err != nil {
+			log.Printf("Unable to login to registry %s: %v", registry.SecretName, err)
 			return err
 		}
 	}
