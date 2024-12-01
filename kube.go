@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2024 Karl Theil @karlderkaefer
+// SPDX-FileContributor: Karl Theil @karlderkaefer
+//
+// SPDX-License-Identifier: MIT-Modern-Variant
+
 package main
 
 import (
