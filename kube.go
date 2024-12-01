@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
+	"log"
+	"strings"
 
 	"helm.sh/helm/v3/pkg/kube"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,28 +17,104 @@ type KubeClientInterface interface {
 }
 
 type RegistryHelper struct {
-	Registries map[string]*RegistryInfo
-	Namespace  string
+	Registries       map[string]*RegistryInfo
+	Namespace        string
 	kubernetesClient KubeClientInterface
+	config *HelmUpdateConfig
 }
 
 type RegistryInfo struct {
-	Hostname string
-	Username string
-	Password string
+	Hostname   string
+	Username   string
+	Password   string
 	SecretName string
+	EnableOCI  bool
 }
 
-func (r *RegistryInfo) Login() error {
-	return runHelmCommand("registry", "login", "-u", r.Username, "-p", r.Password, r.Hostname)
+// RegistryAction interface for registry operations
+type RegistryAction interface {
+	Login() error
+	Logout() error
 }
 
-func (r *RegistryInfo) Add() error {
-	return runHelmCommand("repo", "add", r.SecretName, r.Hostname, "--username", r.Username, "--password", r.Password)
+// OCIStrategy for OCI-enabled registries
+type OCIStrategy struct {
+	*RegistryInfo
 }
 
-func (r *RegistryInfo) Logout() error {
-	return runHelmCommand("registry", "logout", r.Hostname)
+func (o *OCIStrategy) Login() error {
+	return runHelmCommand("registry", "login", "-u", o.Username, "-p", o.Password, o.Hostname)
+}
+
+func (o *OCIStrategy) Logout() error {
+	return runHelmCommand("registry", "logout", o.Hostname)
+}
+
+// DefaultStrategy for non-OCI registries
+type DefaultStrategy struct {
+	*RegistryInfo
+}
+
+func (d *DefaultStrategy) Login() error {
+	return runHelmCommand("repo", "add", d.SecretName, d.Hostname, "--username", d.Username, "--password", d.Password)
+}
+
+func (d *DefaultStrategy) Logout() error {
+	// Logout is not needed for DefaultStrategy
+	return nil
+}
+
+// NewRegistryHelper creates a new RegistryHelper
+// secretNames is a comma separated list of registry secrets
+func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateConfig) *RegistryHelper {
+	registryMap := make(map[string]*RegistryInfo)
+	for _, registry := range strings.Split(secretNames, ",") {
+		if registry != "" {
+			registryMap[registry] = &RegistryInfo{}
+		}
+	}
+	return &RegistryHelper{
+		Registries: registryMap,
+		Namespace:  namespace,
+		config: config,
+	}
+}
+
+// GetRegistry returns the credential protected registry by hostname
+func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
+	for _, registryInfo := range r.Registries {
+		if registryInfo.Hostname == registry {
+			return registryInfo
+		}
+	}
+	return nil
+}
+
+// LoginIfExists logs into the registry if the hostname can found in existing secrets
+func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
+	if registry == nil {
+		return errors.New("registry can not be empty")
+	}
+	exists, err := helmRepoExists(registry, r.config)
+	if err != nil {
+		return err
+	}
+	if exists {
+		log.Printf("Registry %s found in helm repos, skipping login", registry.SecretName)
+		return nil
+	}
+	foundRegistry := r.GetRegistryByHostname(registry.Hostname)
+	if foundRegistry != nil {
+		action := GetRegistryAction(foundRegistry)
+		log.Printf("Registry %s found in secrets, logging in", foundRegistry.SecretName)
+		return action.Login()
+	}
+	if !registry.EnableOCI {
+		log.Printf("Registry %s not found in secrets, adding it as a repo", registry.SecretName)
+		action := GetRegistryAction(registry)
+		return action.Login()
+	}
+	return nil
 }
 
 func (r *RegistryHelper) InitKubeClient() error {
@@ -53,6 +132,10 @@ func (r *RegistryHelper) InitKubeClient() error {
 }
 
 func (r *RegistryHelper) UpdateRegistryInfo() error {
+	if len(r.Registries) == 0 {
+		log.Printf("No secrets provided, skipping registry update from kubeclient")
+		return nil
+	}
 	err := r.InitKubeClient()
 	if err != nil {
 		return err
@@ -63,38 +146,39 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 			return err
 		}
 		r.Registries[secretname] = &RegistryInfo{
-			Hostname: string(secret.Data["url"]),
-			Username: string(secret.Data["username"]),
-			Password: string(secret.Data["password"]),
+			Hostname:   string(secret.Data["url"]),
+			Username:   string(secret.Data["username"]),
+			Password:   string(secret.Data["password"]),
+			EnableOCI:  string(secret.Data["enableOCI"]) == "true",
 			SecretName: secretname,
 		}
 	}
 	return nil
 }
 
-func (r *RegistryHelper) RegistryLogin() error {
+func GetRegistryAction(registry *RegistryInfo) RegistryAction {
+	if registry.EnableOCI {
+		return &OCIStrategy{RegistryInfo: registry}
+	}
+	return &DefaultStrategy{RegistryInfo: registry}
+}
+
+func (r *RegistryHelper) LoginAll() error {
 	for _, registry := range r.Registries {
-		err := registry.Login()
+		action := GetRegistryAction(registry)
+		err := action.Login()
 		if err != nil {
+			log.Printf("Unable to login to registry %s: %v", registry.SecretName, err)
 			return err
 		}
 	}
 	return nil
 }
 
-func (r *RegistryHelper) RegistryAdd() error {
+func (r *RegistryHelper) LogoutAll() error {
 	for _, registry := range r.Registries {
-		err := registry.Add()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (r *RegistryHelper) RegistryLogout() error {
-	for _, registry := range r.Registries {
-		err := registry.Logout()
+		action := GetRegistryAction(registry)
+		err := action.Logout()
 		if err != nil {
 			return err
 		}
