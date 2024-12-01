@@ -38,7 +38,6 @@ func TestUpdateDependencies(t *testing.T) {
 			config := &HelmUpdateConfig{}
 			if tc.helmDepsSkipRefresh {
 				config.SkipDepdencyRefresh = true
-				config.SkipRepoOverwrite = true
 			}
 
 			updater := HelmUpdater{
