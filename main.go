@@ -38,7 +38,10 @@ func main() {
 	comnbinedSecretNames := strings.Join([]string{*secretNames, *addRegistries}, ",")
 	registryHelper := NewRegistryHelper(comnbinedSecretNames, *secretNamespace, config)
 
-	registryHelper.UpdateRegistryInfo()
+	err := registryHelper.UpdateRegistryInfo()
+	if err != nil {
+		log.Fatal("Unable to update registry info: ", err)
+	}
 
 	if !*skipLoginAtStartFlag {
 		err := registryHelper.LoginAll()
@@ -51,7 +54,7 @@ func main() {
 		registryHelper: registryHelper,
 		config:         config,
 	}
-	err := updater.UpdateChart(*chartPath)
+	err = updater.UpdateChart(*chartPath)
 	if err != nil {
 		log.Fatal("Could not update the chart", err)
 	}

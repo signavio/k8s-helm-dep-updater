@@ -48,7 +48,8 @@ func TestUpdateDependencies(t *testing.T) {
 			}
 
 			if tc.helmDepsSkipRefresh {
-				updater.registryHelper.UpdateRegistryInfo()
+				err := updater.registryHelper.UpdateRegistryInfo()
+				assert.NoError(t, err)
 			}
 
 			startTime := time.Now()

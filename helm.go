@@ -98,7 +98,7 @@ func loadChartInfo(chartPath string, level int) (ChartInfo, error) {
 
 	// Collect URLs of dependencies
 	for _, dep := range chart.Metadata.Dependencies {
-		chartInfo.AddDependencyUrl(dep.Repository)
+		_ = chartInfo.AddDependencyUrl(dep.Repository)
 		if regex.MatchString(dep.Repository) {
 			relativePath := strings.TrimPrefix(dep.Repository, "file://")
 			depPath := filepath.Join(chartPath, relativePath)
@@ -109,7 +109,10 @@ func loadChartInfo(chartPath string, level int) (ChartInfo, error) {
 			chartInfo.NestedCharts = append(chartInfo.NestedCharts, nestedChart)
 			// Merge URLs from nested charts
 			for _, registry := range nestedChart.Registries {
-				chartInfo.AddDependencyUrl(registry.Hostname)
+				err := chartInfo.AddDependencyUrl(registry.Hostname)
+				if err != nil {
+					log.Printf("Failed to add registry: %s", err)
+				}
 			}
 		}
 	}
