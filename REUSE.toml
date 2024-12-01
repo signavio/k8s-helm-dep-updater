@@ -1,0 +1,8 @@
+version = 1
+
+SPDX-FileCopyrightText = "2024 Karl Theil @karlderkaefer"
+SPDX-License-Identifier = "MIT-Modern-Variant"
+
+[[annotations]]
+path = "**/*.tpl"
+style = "bibtex"
