@@ -1,0 +1,103 @@
+# Contributing to Helm Dependency Updater
+
+Thank you for considering contributing to the Helm Dependency Updater project! We welcome contributions of all kinds, including bug fixes, new features, and documentation improvements.
+
+Please follow the guidelines below to ensure a smooth contribution process.
+
+## How to Contribute
+
+### 1. Fork the Repository
+
+Start by forking the repository to your GitHub account. This creates a copy of the project under your account that you can work on.
+
+### 2. Clone Your Fork
+
+Clone your fork to your local machine:
+
+```bash
+git clone https://github.com/your-username/k8s-helm-dep-updater.git
+```
+
+### 3. Create a Branch
+
+Create a new branch for your work:
+
+```bash
+git checkout -b feature-or-bugfix-name
+```
+
+Branches should be descriptive about the work they contain. For example:
+
+- `fix-dependency-issue`
+- `add-new-feature-x`
+
+### 4. Make Changes
+
+Make the necessary changes to the code, documentation, or tests.
+
+- Ensure your code is well-commented and follows the project's code style.
+- Update or add new unit tests as appropriate.
+- Run the tests to ensure everything is working correctly.
+
+### 5. Test Your Changes
+
+Ensure that your changes do not introduce regressions:
+
+```bash
+go test ./...
+```
+
+Additionally, you can use the provided environment variables to test specific configurations.
+
+### 6. Commit Your Changes
+
+Commit your changes with a meaningful commit message:
+
+```bash
+git commit -m "Description of changes"
+```
+
+### 7. Push to GitHub
+
+Push your branch to GitHub:
+
+```bash
+git push origin feature-or-bugfix-name
+```
+
+### 8. Create a Pull Request
+
+Navigate to your fork on GitHub and click the "New Pull Request" button. Submit your pull request to the `main` branch of the original repository.
+
+### 9. Address Feedback
+
+Your pull request may receive comments and suggestions from project maintainers. Please be responsive and address the feedback to move your pull request toward acceptance.
+
+## Code of Conduct
+
+Please be respectful to other contributors and follow the [Code of Conduct](CODE_OF_CONDUCT.md). We are committed to providing a friendly and inclusive environment for everyone.
+
+## Pull Request Guidelines
+
+- Keep your pull requests focused and concise.
+- Include test cases for new functionality.
+- Reference any related issues in the description (e.g., "Fixes #123").
+- Ensure all existing tests pass.
+
+## Reporting Issues
+
+If you encounter any bugs or have suggestions, please create an issue on GitHub. Include as much information as possible, such as:
+
+- Steps to reproduce the problem
+- Expected behavior
+- Actual behavior
+- Version of the project you are using
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the same license as this project.
+
+## Thank You!
+
+We truly appreciate your contributions and involvement in making Helm Dependency Updater better. If you have any questions or need help, feel free to open an issue or reach out to the community.
+
