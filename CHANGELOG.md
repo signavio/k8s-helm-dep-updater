@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.6...v2.0.0) (2024-12-01)
+
+
+### Features
+
+* hierarchical parallel dependency updates ([#55](https://github.com/signavio/k8s-helm-dep-updater/issues/55)) ([5e71804](https://github.com/signavio/k8s-helm-dep-updater/commit/5e71804d3ee2229427fb070a1b1d435aedf69b0d))
+
+
+### BREAKING CHANGES
+
+* Dependency updates are now executed in parallel, which may affect existing workflows relying on sequential updates.
+
 ## [1.4.6](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.5...v1.4.6) (2024-11-25)
 
 
