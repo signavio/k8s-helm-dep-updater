@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.23.3
 
 require (
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	helm.sh/helm/v3 v3.16.3
 	k8s.io/apimachinery v0.31.3
 	k8s.io/client-go v0.31.3
