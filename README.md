@@ -77,6 +77,7 @@ repoServer:
 | HELM_DEPS_SKIP_REPO_OVERWRITE | false               | Skips adding the repository if it already exists, useful during testing.                                 |
 | HELM_DEPS_SKIP_REFRESH        | false               | Skips repository update for sub-dependencies, providing a significant performance boost.                 |
 | HELM_DEPS_SKIP_START_LOGIN    | false               | Skips login to all available registries at the start if combined with HELM_DEPS_SKIP_REFRESH=true.       |
+| HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS | false | Adds registries that are registered in the argocd repository secrets.                                     |
 
 ### Local
 

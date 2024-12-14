@@ -32,8 +32,9 @@ type HelmUpdater struct {
 }
 
 type HelmUpdateConfig struct {
-	SkipRepoOverwrite bool
+	SkipRepoOverwrite bool // ENV: HELM_DEPS_SKIP_REPO_OVERWRITE
 	SkipDepdencyRefresh bool // ENV: HELM_DEPS_SKIP_REFRESH
+	FetchArgocdRepoSecrets bool // ENV: HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS
 }
 
 func (c *ChartInfo) AddDependencyUrl(depdencyUrl string) error {

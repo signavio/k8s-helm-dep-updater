@@ -17,6 +17,11 @@ import (
 	typedv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
+const (
+	ArgocdRepoSecretLabel = "argocd.argoproj.io/secret-type"
+	ArgocdRepoSecretValue = "repository"
+)
+
 type KubeClientInterface interface {
 	CoreV1() typedv1.CoreV1Interface
 }
@@ -85,6 +90,8 @@ func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateC
 	}
 }
 
+
+
 // GetRegistry returns the credential protected registry by hostname
 func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
 	for _, registryInfo := range r.Registries {
@@ -137,15 +144,15 @@ func (r *RegistryHelper) InitKubeClient() error {
 }
 
 func (r *RegistryHelper) UpdateRegistryInfo() error {
-	if len(r.Registries) == 0 {
+	if len(r.Registries) == 0 && !r.config.FetchArgocdRepoSecrets {
 		log.Printf("No secrets provided, skipping registry update from kubeclient")
 		return nil
 	}
-	err := r.InitKubeClient()
-	if err != nil {
-		return err
-	}
 	for secretname := range r.Registries {
+		err := r.InitKubeClient()
+		if err != nil {
+			return err
+		}
 		secret, err := r.kubernetesClient.CoreV1().Secrets(r.Namespace).Get(context.TODO(), secretname, metav1.GetOptions{})
 		if err != nil {
 			return err
@@ -158,7 +165,40 @@ func (r *RegistryHelper) UpdateRegistryInfo() error {
 			SecretName: secretname,
 		}
 	}
+	if r.config.FetchArgocdRepoSecrets {
+		err := r.InitKubeClient()
+		if err != nil {
+			return err
+		}
+		r.SetRegistriesByLabel()
+	}
+	log.Printf("Created %d registries", len(r.Registries))
 	return nil
+}
+
+func (r *RegistryHelper) SetRegistriesByLabel() {
+	selector := metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			ArgocdRepoSecretLabel: ArgocdRepoSecretValue,
+		},
+	}
+	secrets, err := r.kubernetesClient.CoreV1().Secrets(r.Namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: metav1.FormatLabelSelector(&selector),
+	})
+	if err != nil {
+		log.Printf("Unable to list secrets with label %s: %v", ArgocdRepoSecretLabel, err)
+		return
+	}
+	for _, secret := range secrets.Items {
+		secretName := secret.Name
+		r.Registries[secretName] = &RegistryInfo{
+			Hostname:   string(secret.Data["url"]),
+			Username:   string(secret.Data["username"]),
+			Password:   string(secret.Data["password"]),
+			EnableOCI:  string(secret.Data["enableOCI"]) == "true",
+			SecretName: secretName,
+		}
+	}
 }
 
 func GetRegistryAction(registry *RegistryInfo) RegistryAction {
