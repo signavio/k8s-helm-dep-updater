@@ -46,9 +46,11 @@ func main() {
 	}
 	// just for backward compatibility
 	comnbinedSecretNames := strings.Join([]string{*secretNames, *addRegistries}, ",")
-	registryHelper := NewRegistryHelper(comnbinedSecretNames, *secretNamespace, config)
-
-	err := registryHelper.UpdateRegistryInfo()
+	registryHelper, err := NewRegistryHelper(comnbinedSecretNames, *secretNamespace, config)
+	if err != nil {
+		log.Fatal("Unable to create random helm chart cache dir: ", err)
+	}
+	err = registryHelper.UpdateRegistryInfo()
 	if err != nil {
 		log.Fatal("Unable to update registry info: ", err)
 	}

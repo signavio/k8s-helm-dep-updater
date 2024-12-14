@@ -82,7 +82,7 @@ func (d *DefaultStrategy) Logout() error {
 
 // NewRegistryHelper creates a new RegistryHelper
 // secretNames is a comma separated list of registry secrets
-func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateConfig) *RegistryHelper {
+func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateConfig) (*RegistryHelper, error) {
 	registryMap := make(map[string]*RegistryInfo)
 	for _, registry := range strings.Split(secretNames, ",") {
 		if registry != "" {
@@ -95,9 +95,12 @@ func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateC
 		config:     config,
 	}
 	if config.UseRandomHelmCacheDir {
-		r.SetRandomHelmCacheDir()
+		err := r.SetRandomHelmCacheDir()
+		if err != nil {
+			return r, err
+		}
 	}
-	return r
+	return r, nil
 }
 
 func (r *RegistryHelper) SetRandomHelmCacheDir() error {
@@ -153,7 +156,7 @@ func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
 		return action.Login()
 	}
 	if !registry.EnableOCI {
-		log.Printf("Registry %s ≈", registry.SecretName)
+		log.Printf("Registry %s not found in secrets, adding it as a repo", registry.SecretName)
 		action := GetRegistryAction(registry)
 		return action.Login()
 	}
