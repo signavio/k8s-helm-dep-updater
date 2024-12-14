@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.0.0...v2.0.1) (2024-12-02)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/stretchr/testify to v1.10.0 ([#58](https://github.com/signavio/k8s-helm-dep-updater/issues/58)) ([b5bbb19](https://github.com/signavio/k8s-helm-dep-updater/commit/b5bbb192f311722cbdae95e5440e258f4c19571a))
+
 # [2.0.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v1.4.6...v2.0.0) (2024-12-01)
 
 
