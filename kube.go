@@ -126,6 +126,17 @@ func (r *RegistryHelper) SetRandomHelmCacheDir() error {
 	return nil
 }
 
+func (r *RegistryHelper) RemoveTempHelmCacheDir() {
+	cacheDir := os.Getenv("HELM_REPOSITORY_CACHE")
+	configDir := os.Getenv("HELM_REPOSITORY_CONFIG")
+	if cacheDir != "" && strings.HasPrefix(cacheDir, "/tmp/helm_cache_") {
+		os.RemoveAll(cacheDir)
+	}
+	if configDir != "" && strings.HasPrefix(configDir, "/tmp/helm_config_") {
+		os.RemoveAll(filepath.Dir(configDir))
+	}
+}
+
 // GetRegistry returns the credential protected registry by hostname
 func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
 	for _, registryInfo := range r.Registries {

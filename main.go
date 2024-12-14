@@ -54,6 +54,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to update registry info: ", err)
 	}
+	if registryHelper.config.UseRandomHelmCacheDir {
+		defer registryHelper.RemoveTempHelmCacheDir() // nolint: errcheck
+	}
 
 	if !*skipLoginAtStartFlag {
 		err := registryHelper.LoginAll()
