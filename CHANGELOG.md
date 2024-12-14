@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.0.1...v2.1.0) (2024-12-14)
+
+
+### Features
+
+* use random helm cache dir ([#63](https://github.com/signavio/k8s-helm-dep-updater/issues/63)) ([c725450](https://github.com/signavio/k8s-helm-dep-updater/commit/c725450b42f2cf49c404881d9eaf8fc3cf318fc8))
+
 ## [2.0.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.0.0...v2.0.1) (2024-12-02)
 
 
