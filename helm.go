@@ -35,6 +35,7 @@ type HelmUpdateConfig struct {
 	SkipRepoOverwrite bool // ENV: HELM_DEPS_SKIP_REPO_OVERWRITE
 	SkipDepdencyRefresh bool // ENV: HELM_DEPS_SKIP_REFRESH
 	FetchArgocdRepoSecrets bool // ENV: HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS
+	UseRandomHelmCacheDir bool // ENV: HELM_DEPS_RANDOM_CACHE_DIR
 }
 
 func (c *ChartInfo) AddDependencyUrl(depdencyUrl string) error {
@@ -183,17 +184,22 @@ func helmRepoExists(registry *RegistryInfo, config *HelmUpdateConfig) (bool, err
 	cmd := exec.Command("helm", "repo", "ls")
 	var out bytes.Buffer
 	cmd.Stdout = &out
+	cmd.Stderr = &out
 	err := cmd.Run()
-	if err != nil {
-		return false, fmt.Errorf("failed to run helm repo ls: %w", err)
-	}
-	output := out.String()
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		if strings.Contains(line, registry.Hostname) {
-			return true, nil
-		}
-	}
+    if err != nil {
+        // Check if the error is due to no repositories existing
+        if strings.Contains(out.String(), "no repositories to show") {
+            return false, nil
+        }
+        return false, fmt.Errorf("failed to run helm repo ls: %w", err)
+    }
+    output := out.String()
+    lines := strings.Split(output, "\n")
+    for _, line := range lines {
+        if strings.Contains(line, registry.Hostname) {
+            return true, nil
+        }
+    }
 	return false, nil
 }
 

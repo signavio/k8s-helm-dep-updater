@@ -8,8 +8,14 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
+
+	"math/rand"
 
 	"helm.sh/helm/v3/pkg/kube"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,7 +36,7 @@ type RegistryHelper struct {
 	Registries       map[string]*RegistryInfo
 	Namespace        string
 	kubernetesClient KubeClientInterface
-	config *HelmUpdateConfig
+	config           *HelmUpdateConfig
 }
 
 type RegistryInfo struct {
@@ -83,14 +89,39 @@ func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateC
 			registryMap[registry] = &RegistryInfo{}
 		}
 	}
-	return &RegistryHelper{
+	r := &RegistryHelper{
 		Registries: registryMap,
 		Namespace:  namespace,
-		config: config,
+		config:     config,
 	}
+	if config.UseRandomHelmCacheDir {
+		r.SetRandomHelmCacheDir()
+	}
+	return r
 }
 
+func (r *RegistryHelper) SetRandomHelmCacheDir() error {
+	// Create a local rand generator
+	seed := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// Create unique temporary directories
+	cacheDir := fmt.Sprintf("/tmp/helm_cache_%d", seed.Int())
+	configDir := fmt.Sprintf("/tmp/helm_config_%d", seed.Int())
 
+	// Ensure the directories exist
+	err := os.MkdirAll(cacheDir, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create cache directory: %w", err)
+	}
+
+	err = os.MkdirAll(configDir, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+	// Set the environment variables for Helm
+	os.Setenv("HELM_REPOSITORY_CACHE", cacheDir)
+	os.Setenv("HELM_REPOSITORY_CONFIG", filepath.Join(configDir, "repositories.yaml"))
+	return nil
+}
 
 // GetRegistry returns the credential protected registry by hostname
 func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
@@ -122,7 +153,7 @@ func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
 		return action.Login()
 	}
 	if !registry.EnableOCI {
-		log.Printf("Registry %s not found in secrets, adding it as a repo", registry.SecretName)
+		log.Printf("Registry %s ≈", registry.SecretName)
 		action := GetRegistryAction(registry)
 		return action.Login()
 	}

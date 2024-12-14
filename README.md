@@ -78,6 +78,7 @@ repoServer:
 | HELM_DEPS_SKIP_REFRESH        | false               | Skips repository update for sub-dependencies, providing a significant performance boost.                 |
 | HELM_DEPS_SKIP_START_LOGIN    | false               | Skips login to all available registries at the start if combined with HELM_DEPS_SKIP_REFRESH=true.       |
 | HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS | false | Adds registries that are registered in the argocd repository secrets.                                     |
+| HELM_DEPS_RANDOM_CACHE_DIR | false | Uses a random cache directory for the helm plugin. Useful for parallel executions when using in ArgoCD. This give additional speed boost of ~30% |
 
 ### Local
 
@@ -123,6 +124,9 @@ helm template . -f deps://dummy -f env/qa/values.yaml  200.83s user 19.00s syste
 export HELM_DEPS_SKIP_REFRESH=true
 export HELM_DEPS_SKIP_REPO_OVERWRITE=true
 export HELM_DEPS_SKIP_START_LOGIN=true
-helm template . -f deps://dummy -f env/qa/values.yaml  129.04s user 8.81s system 286% cpu 48.064 total # V2 max performance
+helm template . -f deps://dummy -f env/qa/values.yaml  129.04s user 8.81s system 286% cpu 48.064 total # V2 Performance
+
+export HELM_DEPS_RANDOM_CACHE_DIR=true
+helm template -f env/qa/values.yaml -f deps://dummy . > app.yaml  41.07s user 6.11s system 184% cpu 25.541 total # V2 Performance with Random Cache Dir
 ```
 

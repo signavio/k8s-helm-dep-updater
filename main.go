@@ -33,6 +33,8 @@ func main() {
 	skipLoginAtStartFlag := flag.Bool("skip-login-at-start", skipLoginAtStart, "Env: HELM_DEPS_SKIP_START_LOGIN (default false). This will skip login to all available registry at the start in combination with HELM_DEPS_SKIP_REFRESH=true")
 	fetchArgocdRepoSecrets := parseBoolEnv("HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS", false)
 	fetchArgocdRepoSecretsFlag := flag.Bool("fetch-argocd-repo-secrets", fetchArgocdRepoSecrets, "Env: HELM_DEPS_FETCH_ARGOCD_REPO_SECRETS (default false). Fetch the argocd repository secrets as registries")
+	useRandomHelmCacheDir := parseBoolEnv("HELM_DEPS_RANDOM_CACHE_DIR", false)
+	useRandomHelmCacheDirFlag := flag.Bool("use-random-helm-cache-dir", useRandomHelmCacheDir, "Env: HELM_DEPS_RANDOM_CACHE_DIR (default false). Use a random cache directory for helm")
 
 	flag.Parse()
 
@@ -40,6 +42,7 @@ func main() {
 		FetchArgocdRepoSecrets: *fetchArgocdRepoSecretsFlag,
 		SkipRepoOverwrite:      *skipRepoOverwriteFlag,
 		SkipDepdencyRefresh:    *skipDepRefreshFlag,
+		UseRandomHelmCacheDir:  *useRandomHelmCacheDirFlag,
 	}
 	// just for backward compatibility
 	comnbinedSecretNames := strings.Join([]string{*secretNames, *addRegistries}, ",")
