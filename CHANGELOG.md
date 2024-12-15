@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.1.0...v2.1.1) (2024-12-15)
+
+
+### Bug Fixes
+
+* not update helm repo if there are no repos ([#64](https://github.com/signavio/k8s-helm-dep-updater/issues/64)) ([abbe2ff](https://github.com/signavio/k8s-helm-dep-updater/commit/abbe2ff9ebc470be35c0837a90ec82dbcb027e92))
+
 # [2.1.0](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.0.1...v2.1.0) (2024-12-14)
 
 
