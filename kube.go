@@ -152,7 +152,7 @@ func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
 	if registry == nil {
 		return errors.New("registry can not be empty")
 	}
-	exists, err := helmRepoExists(registry, r.config)
+	exists, _, err := helmRepoExists(registry, r.config)
 	if err != nil {
 		return err
 	}
