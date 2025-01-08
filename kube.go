@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,6 +81,14 @@ func (d *DefaultStrategy) Logout() error {
 	return nil
 }
 
+// return the registry hostname in case of oci://hostname we return hostname
+func (info *RegistryInfo) GetRegistryHost() string {
+	if info.EnableOCI {
+		info.Hostname = GetRegistryHostName(info.Hostname)
+	}
+	return info.Hostname
+}
+
 // NewRegistryHelper creates a new RegistryHelper
 // secretNames is a comma separated list of registry secrets
 func NewRegistryHelper(secretNames string, namespace string, config *HelmUpdateConfig) (*RegistryHelper, error) {
@@ -138,9 +147,9 @@ func (r *RegistryHelper) RemoveTempHelmCacheDir() {
 }
 
 // GetRegistry returns the credential protected registry by hostname
-func (r *RegistryHelper) GetRegistryByHostname(registry string) *RegistryInfo {
+func (r *RegistryHelper) GetRegistryByHostname(registry RegistryInfo) *RegistryInfo {
 	for _, registryInfo := range r.Registries {
-		if registryInfo.Hostname == registry {
+		if registryInfo.Hostname == registry.GetRegistryHost() {
 			return registryInfo
 		}
 	}
@@ -160,7 +169,7 @@ func (r *RegistryHelper) LoginIfExists(registry *RegistryInfo) error {
 		log.Printf("Registry %s found in helm repos, skipping login", registry.SecretName)
 		return nil
 	}
-	foundRegistry := r.GetRegistryByHostname(registry.Hostname)
+	foundRegistry := r.GetRegistryByHostname(*registry)
 	if foundRegistry != nil {
 		action := GetRegistryAction(foundRegistry)
 		log.Printf("Registry %s found in secrets, logging in", foundRegistry.SecretName)
@@ -235,6 +244,9 @@ func (r *RegistryHelper) SetRegistriesByLabel() {
 		return
 	}
 	for _, secret := range secrets.Items {
+		if string(secret.Data["type"]) != "helm" {
+			continue
+		}
 		secretName := secret.Name
 		r.Registries[secretName] = &RegistryInfo{
 			Hostname:   string(secret.Data["url"]),
@@ -274,4 +286,16 @@ func (r *RegistryHelper) LogoutAll() error {
 		}
 	}
 	return nil
+}
+
+func GetRegistryHostName(registryUrl string) string {
+	parsedURL, err := url.Parse(registryUrl)
+	if parsedURL.Scheme == "" {
+		return registryUrl
+	}
+	if err != nil {
+		log.Printf("Failed to parse URL: %s", registryUrl)
+		return ""
+	}
+	return parsedURL.Host
 }

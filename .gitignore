@@ -3,3 +3,4 @@ Chart.lock
 !./charts
 k8s-helm-dep-updater
 dist/
+.DS_Store
