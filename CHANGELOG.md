@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.1.3...v2.1.4) (2025-01-08)
+
+
+### Bug Fixes
+
+* make oci login work ([#68](https://github.com/signavio/k8s-helm-dep-updater/issues/68)) ([389a882](https://github.com/signavio/k8s-helm-dep-updater/commit/389a8829ffb6da809f50617b80ff0221b52eb3da))
+
 ## [2.1.3](https://github.com/signavio/k8s-helm-dep-updater/compare/v2.1.2...v2.1.3) (2024-12-23)
 
 
