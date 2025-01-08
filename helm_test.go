@@ -28,13 +28,13 @@ func TestUpdateDependencies(t *testing.T) {
 			name:                "With Refresh",
 			chartPath:           "charts/benchmark-subchart-level-1",
 			helmDepsSkipRefresh: false,
-			expectedNumObjects:  42,
+			expectedNumObjects:  56,
 		},
 		{
 			name:                "Without Refresh",
 			chartPath:           "charts/benchmark-subchart-level-1",
 			helmDepsSkipRefresh: true,
-			expectedNumObjects:  42,
+			expectedNumObjects:  56,
 		},
 	}
 

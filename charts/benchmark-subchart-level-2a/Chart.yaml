@@ -37,3 +37,7 @@ dependencies:
     alias: mysql-bitnami-benchmark-subchart-level-2a
     version: 12.0.0
     repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    alias: redis-bitnami-benchmark-subchart-level-2a
+    version: 20.6.1
+    repository: oci://registry-1.docker.io/bitnamicharts
