@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: build
     steps:
-      - uses: azure/setup-helm@v4.2.0
+      - uses: azure/setup-helm@v4.3.0
         id: install
       - uses: actions/checkout@v4
       - name: Setup Go
