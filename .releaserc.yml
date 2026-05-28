@@ -1,12 +1,10 @@
-branches: 
+branches:
   - master
   - main
 preset: angular
 plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
-  - "@semantic-release/changelog"
-  - "@semantic-release/git"
   - - "@semantic-release/exec"
     - publishCmd: |
         echo "${nextRelease.notes}" > /tmp/release-notes.md
